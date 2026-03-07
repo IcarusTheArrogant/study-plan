@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Substation Engineer · Career Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2333;
+  --surface3: #21262d;
+  --border: #30363d;
+  --border2: #3d444d;
+  --text: #e6edf3;
+  --text2: #9198a1;
+  --text3: #6e7681;
+  --primary: #a78bfa;
+  --primary-dim: rgba(167,139,250,0.12);
+  --primary-glow: rgba(167,139,250,0.25);
+  --circuit: #f97316;
+  --circuit-dim: rgba(249,115,22,0.12);
+  --psrc: #22d3ee;
+  --psrc-dim: rgba(34,211,238,0.10);
+  --psrc-glow: rgba(34,211,238,0.22);
+  --green: #3fb950;
+  --green-dim: rgba(63,185,80,0.12);
+  --yellow: #d29922;
+  --yellow-dim: rgba(210,153,34,0.12);
+  --red: #f85149;
+  --radius: 8px;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 680px; margin: 0 auto; padding: 0 16px 120px; }
+
+/* Header */
+.header { padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.header-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--text3); text-transform: uppercase; margin-bottom: 4px; }
+.header-title { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+.header-sub { font-size: 13px; color: var(--text2); font-weight: 300; margin-top: 3px; }
+
+/* Phase banner */
+.phase-banner {
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border-left: 3px solid;
+}
+.phase-0 { background: var(--surface); border-color: var(--text3); }
+.phase-1 { background: linear-gradient(135deg, rgba(167,139,250,0.07), rgba(249,115,22,0.05)); border-color: var(--primary); }
+.phase-2 { background: linear-gradient(135deg, rgba(167,139,250,0.07), rgba(34,211,238,0.05)); border-color: var(--primary); }
+.phase-3 { background: linear-gradient(135deg, rgba(34,211,238,0.07), rgba(63,185,80,0.05)); border-color: var(--psrc); }
+.phase-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; }
+.phase-title { font-size: 15px; font-weight: 500; }
+.phase-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+/* Global progress */
+.global-progress {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.prog-block { display: flex; flex-direction: column; gap: 5px; }
+.prog-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
+.prog-nums { font-family: var(--mono); font-size: 20px; font-weight: 600; line-height: 1; }
+.prog-nums span { font-size: 12px; font-weight: 400; color: var(--text2); }
+.prog-track { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* Month nav */
+.month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.nav-btn {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text2); width: 38px; height: 38px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; transition: all 0.15s; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-btn:hover, .nav-btn:active { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.month-label { flex: 1; text-align: center; }
+.month-label-phase { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+.month-label-title { font-size: 15px; font-weight: 500; color: var(--text); margin-top: 2px; }
+.month-label-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* Month dots */
+.month-dots { display: flex; gap: 3px; align-items: center; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; padding: 4px 0; }
+.month-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--surface3); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+.month-dot.current { background: var(--primary); border-color: var(--primary); transform: scale(1.5); }
+.month-dot.done { background: var(--green); border-color: var(--green); }
+.month-dot.partial { background: var(--yellow); border-color: var(--yellow); }
+.month-dot.recovery { background: var(--surface2); border-color: var(--text3); }
+
+/* Month progress */
+.month-progress {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+}
+.month-prog-bar { flex: 1; height: 5px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.month-prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--primary), var(--psrc)); transition: width 0.4s ease; }
+.month-prog-label { font-family: var(--mono); font-size: 11px; color: var(--text2); white-space: nowrap; }
+
+/* Next up */
+.next-up {
+  background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(34,211,238,0.05));
+  border: 1px solid var(--border2); border-left: 3px solid var(--primary);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+}
+.next-up-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--primary); margin-bottom: 5px; }
+.next-up-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.next-up-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* PSRC reminder */
+.psrc-reminder {
+  background: var(--psrc-dim); border: 1px solid var(--psrc-glow);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+}
+.psrc-reminder-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--psrc); margin-bottom: 5px; }
+.psrc-reminder-text { font-size: 12px; line-height: 1.5; color: var(--text2); }
+
+/* Section cards */
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.section-header { padding: 12px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+.section-header:hover { background: var(--surface2); }
+.track-badge { font-family: var(--mono); font-size: 8px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 6px; border-radius: 4px; flex-shrink: 0; }
+.badge-writing { background: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary-glow); }
+.badge-circuit { background: var(--circuit-dim); color: var(--circuit); border: 1px solid rgba(249,115,22,0.3); }
+.badge-psrc { background: var(--psrc-dim); color: var(--psrc); border: 1px solid var(--psrc-glow); }
+.badge-reading { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+.badge-recovery { background: var(--surface3); color: var(--text3); border: 1px solid var(--border); }
+.badge-fluency { background: rgba(56,217,217,0.10); color: #38d9d9; border: 1px solid rgba(56,217,217,0.3); }
+.section-title { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.3; }
+.section-count { font-family: var(--mono); font-size: 10px; color: var(--text3); flex-shrink: 0; }
+.section-chevron { color: var(--text3); font-size: 13px; flex-shrink: 0; transition: transform 0.2s; }
+.section-card.open .section-chevron { transform: rotate(90deg); }
+.section-card.open .section-header { border-bottom: 1px solid var(--border); }
+.section-body { display: none; }
+.section-card.open .section-body { display: block; }
+
+/* Resource banner */
+.resource-banner { padding: 9px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 11px; }
+.resource-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 2px; }
+.resource-name { color: var(--text2); }
+
+/* Objectives */
+.obj-list { padding: 2px 0; }
+.obj-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent; user-select: none; }
+.obj-item:last-child { border-bottom: none; }
+.obj-item:hover, .obj-item:active { background: var(--surface2); }
+.obj-item.done { opacity: 0.45; }
+.obj-item.done .obj-text { text-decoration: line-through; color: var(--text3); }
+.obj-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.2s; }
+.obj-item.done .obj-check { background: var(--green); border-color: var(--green); }
+.obj-check-mark { font-size: 9px; color: #fff; opacity: 0; transition: opacity 0.2s; }
+.obj-item.done .obj-check-mark { opacity: 1; }
+.obj-content { flex: 1; min-width: 0; }
+.obj-num { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-bottom: 2px; }
+.obj-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+
+/* Activity type badge */
+.activity-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+.activity-badge { font-family: var(--mono); font-size: 8px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; }
+.act-research { background: rgba(210,153,34,0.12); color: var(--yellow); }
+.act-talk { background: rgba(167,139,250,0.12); color: var(--primary); }
+.act-write { background: rgba(63,185,80,0.12); color: var(--green); }
+.act-review { background: rgba(34,211,238,0.10); color: var(--psrc); }
+.act-read { background: rgba(249,115,22,0.12); color: var(--circuit); }
+.act-trace { background: rgba(249,115,22,0.12); color: var(--circuit); }
+.act-draw { background: rgba(249,115,22,0.12); color: var(--circuit); }
+.obj-resource { font-size: 11px; color: var(--text3); }
+.obj-resource::before { content: '→ '; font-family: var(--mono); }
+
+/* Views */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Settings */
+.settings-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.settings-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
+.settings-input { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 12px; width: 100%; }
+.settings-input:focus { outline: none; border-color: var(--primary); }
+.settings-save { background: var(--primary); color: var(--bg); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; border: none; border-radius: var(--radius); padding: 10px 20px; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; }
+.settings-save:hover { opacity: 0.85; }
+.settings-info { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 14px; }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.stat-num { font-family: var(--mono); font-size: 26px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 11px; color: var(--text2); }
+.phase-progress-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; }
+.phase-prog-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.phase-prog-row:last-child { border-bottom: none; }
+.phase-prog-name { font-size: 12px; color: var(--text); flex: 1; }
+.phase-prog-bar { width: 70px; height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.phase-prog-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+.phase-prog-pct { font-family: var(--mono); font-size: 10px; color: var(--text2); width: 28px; text-align: right; }
+
+/* Reset */
+.reset-area { margin-top: 20px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-align: center; }
+.reset-btn { background: none; border: 1px solid var(--red); color: var(--red); font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 18px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.reset-btn:hover { background: rgba(248,81,73,0.1); }
+.reset-label { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+/* Tab bar */
+.tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13,17,23,0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 100; }
+.tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; border: none; background: none; color: var(--text3); font-family: var(--sans); transition: color 0.15s; }
+.tab-btn.active { color: var(--primary); }
+.tab-icon { font-size: 19px; line-height: 1; }
+.tab-label { font-size: 9px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Toast */
+.toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--green); color: #000; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 7px 16px; border-radius: 20px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 200; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Util */
+.card-header-plain { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 10px; }
+.section-title-plain { font-size: 13px; font-weight: 600; color: var(--text2); font-family: var(--mono); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── MONTH VIEW ── -->
+  <div class="view active" id="view-month">
+    <div class="header">
+      <div class="header-eyebrow">Substation Engineer · Career Development</div>
+      <div class="header-title">28-Month Plan</div>
+      <div class="header-sub" id="header-sub">Loading...</div>
+    </div>
+
+    <div class="global-progress" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <div class="prog-block">
+        <div class="prog-label">Writing</div>
+        <div class="prog-nums" style="color:var(--primary)" id="gp-write-nums">0 <span>/ 0</span></div>
+        <div class="prog-track"><div class="prog-fill" style="background:var(--primary)" id="gp-write-bar" style="width:0%"></div></div>
+      </div>
+      <div class="prog-block">
+        <div class="prog-label">Circuit</div>
+        <div class="prog-nums" style="color:var(--circuit)" id="gp-circuit-nums">0 <span>/ 0</span></div>
+        <div class="prog-track"><div class="prog-fill" style="background:var(--circuit)" id="gp-circuit-bar" style="width:0%"></div></div>
+      </div>
+      <div class="prog-block">
+        <div class="prog-label">Fluency</div>
+        <div class="prog-nums" style="color:#38d9d9" id="gp-fluency-nums">0 <span>/ 0</span></div>
+        <div class="prog-track"><div class="prog-fill" style="background:#38d9d9" id="gp-fluency-bar" style="width:0%"></div></div>
+      </div>
+      <div class="prog-block">
+        <div class="prog-label">PSRC</div>
+        <div class="prog-nums" style="color:var(--psrc)" id="gp-psrc-nums">0 <span>/ 0</span></div>
+        <div class="prog-track"><div class="prog-fill" style="background:var(--psrc)" id="gp-psrc-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="month-dots" id="month-dots"></div>
+
+    <div class="month-nav">
+      <button class="nav-btn" id="btn-prev" onclick="changeMonth(-1)">‹</button>
+      <div class="month-label">
+        <div class="month-label-phase" id="m-phase-label"></div>
+        <div class="month-label-title" id="m-title"></div>
+        <div class="month-label-sub" id="m-sub"></div>
+      </div>
+      <button class="nav-btn" id="btn-next" onclick="changeMonth(1)">›</button>
+    </div>
+
+    <div class="month-progress">
+      <div class="month-prog-bar"><div class="month-prog-fill" id="month-prog-fill" style="width:0%"></div></div>
+      <div class="month-prog-label" id="month-prog-label">0 / 0 done</div>
+    </div>
+
+    <div class="next-up" id="next-up-box">
+      <div class="next-up-label">▶ Next Objective</div>
+      <div class="next-up-text" id="next-up-text">—</div>
+      <div class="next-up-meta" id="next-up-meta"></div>
+    </div>
+
+    <div id="psrc-reminder-box" style="display:none">
+      <div class="psrc-reminder">
+        <div class="psrc-reminder-label">📡 PSRC This Month</div>
+        <div class="psrc-reminder-text" id="psrc-reminder-text"></div>
+      </div>
+    </div>
+
+    <div id="sections-container"></div>
+  </div>
+
+  <!-- ── STATS VIEW ── -->
+  <div class="view" id="view-stats">
+    <div class="header">
+      <div class="header-eyebrow">Overall Progress</div>
+      <div class="header-title">Stats</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="s-total" style="color:var(--green)">0</div>
+        <div class="stat-label">Objectives complete</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="s-pct" style="color:var(--primary)">0%</div>
+        <div class="stat-label">Overall completion</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="s-months" style="color:var(--psrc)">0</div>
+        <div class="stat-label">Months fully done</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="s-current" style="color:var(--yellow)">—</div>
+        <div class="stat-label">Current month</div>
+      </div>
+    </div>
+    <div class="phase-progress-card">
+      <div id="phase-bars"></div>
+    </div>
+    <div class="reset-area">
+      <button class="reset-btn" onclick="confirmReset()">Reset All Progress</button>
+      <div class="reset-label">Clears all checkboxes. Cannot be undone.</div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS VIEW ── -->
+  <div class="view" id="view-settings">
+    <div class="header">
+      <div class="header-eyebrow">Configuration</div>
+      <div class="header-title">Settings</div>
+    </div>
+    <div class="settings-info">
+      The plan counts from your Phase 1 start date — the day you're ready to begin after the PE exam. Month 1 of the plan is Month 3 of recovery (Months 1–2 are rest). Set your PE exam date below and the app will calculate your Phase 1 start automatically, or set it manually.
+    </div>
+    <div class="settings-row">
+      <div class="settings-label">PE Exam Date</div>
+      <input type="date" class="settings-input" id="input-pe-date" value="2026-06-09">
+    </div>
+    <div class="settings-row">
+      <div class="settings-label">Phase 1 Start Date <span style="color:var(--text3);font-size:10px">(auto = PE date + 10 weeks, or set manually)</span></div>
+      <input type="date" class="settings-input" id="input-start-date">
+    </div>
+    <button class="settings-save" onclick="saveSettings()">Save Settings</button>
+    <div style="margin-top:20px">
+      <div class="settings-label" style="margin-bottom:8px">Current Plan Dates</div>
+      <div id="date-preview" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:2"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-month" onclick="switchTab('month')">
+    <span class="tab-icon">📅</span><span class="tab-label">This Month</span>
+  </button>
+  <button class="tab-btn" id="tab-stats" onclick="switchTab('stats')">
+    <span class="tab-icon">📊</span><span class="tab-label">Progress</span>
+  </button>
+  <button class="tab-btn" id="tab-settings" onclick="switchTab('settings')">
+    <span class="tab-icon">⚙️</span><span class="tab-label">Settings</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// PLAN DATA
+// ═══════════════════════════════════════════════════
+
+const MONTHS = [
+
+  // ── PHASE 0 ─────────────────────────────────────
+  {
+    month: 0, phase: 0, phaseLabel: "Phase 0 — Recovery",
+    title: "Rest & Decompress",
+    sub: "PE exam complete · No obligations",
+    psrc: null,
+    sections: [{
+      id:"m0s1", track:"recovery", trackLabel:"Recovery", badge:"badge-recovery",
+      title: "You passed. Rest.",
+      resource: null,
+      objectives: [
+        { id:"m0o1", text:"Take a real break. No studying, no code writing, no obligations. If you feel like reading a PAC World article, go ahead — but don't force it.", activities:["read"], resource:"pacw.org — only if you feel like it" },
+        { id:"m0o2", text:"Month 2: Same. Let the PE material settle. Let your brain recover. The plan starts when you're ready, not on a fixed date.", activities:["read"], resource:"No obligation" },
+      ]
+    }]
+  },
+
+  // ── PHASE 1 ─────────────────────────────────────
+  {
+    month: 1, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Circuit 1 + Section 2.6 Grounding",
+    sub: "Track A: Circuit Literacy · Track B: Primary System Writing",
+    psrc: "Familiarize with PSRC Knowledge Base at pes-psrc.org/knowledgebase — browse the index only. No reading obligation yet. Get a feel for what's there.",
+    sections: [
+      {
+        id:"m1s1", track:"circuit", trackLabel:"Circuit Literacy", badge:"badge-circuit",
+        title: "Track A — Circuit 1: Simple Overcurrent Trip",
+        resource: "Pull one real project DC elementary from your files",
+        objectives: [
+          { id:"m1o1", text:"Identify every device in a simple 51-element trip circuit: positive DC bus → fuse → relay output contact → trip coil → breaker auxiliary contact (52b) → negative bus. Name each device and its function.", activities:["trace","read"], resource:"Project DC elementary + PSRC Report 037 Section 1" },
+          { id:"m1o2", text:"Understand why the 52b contact is in the trip coil circuit — what happens if it isn't there after the breaker opens. This is the seal-in / trip coil burnout question.", activities:["trace","talk"], resource:"Talk-first: explain to Claude, get the gap filled" },
+          { id:"m1o3", text:"Draw Circuit 1 from memory on paper. Label every device. Verify against the project drawing. Note every discrepancy — those are your gaps.", activities:["draw"], resource:"Blank paper + project drawing for verification" },
+        ]
+      },
+      {
+        id:"m1s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Track B — Section 2.6 Grounding & Bonding",
+        resource: "IEEE 80-2013 · IEEE 81 · NESC Section 09",
+        objectives: [
+          { id:"m1o4", text:"Research phase: Re-read your PE study notes on IEEE 80. Review the key sections: soil resistivity, ground grid design, step/touch potential limits, GPR. Note what you know cold vs. what needs verification.", activities:["research","read"], resource:"IEEE 80 Sections 1–8; your PE study notes" },
+          { id:"m1o5", text:"Talk-first draft: Tell Claude everything you know about substation grounding — the why, the how, the design parameters. Don't write yet. Just talk through it.", activities:["talk"], resource:"Conversation with Claude → first draft output" },
+          { id:"m1o6", text:"Review and correct the draft. Add anything missing. Mark anything you're not confident about with a [VERIFY] tag. Aim for 70% complete — not perfect.", activities:["write","review"], resource:"Draft from talk session → your corrections" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 2, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Circuit 2 + Section 2.9 Lightning Protection",
+    sub: "Track A: Differential trip circuit · Track B: Lightning",
+    psrc: "Read one document from PSRC knowledge base backlog: Report 037 Section 1 (intro to microprocessor relays — 15 min read). First pass only — just get familiar.",
+    sections: [
+      {
+        id:"m2s1", track:"circuit", trackLabel:"Circuit Literacy", badge:"badge-circuit",
+        title: "Track A — Circuit 2: Transformer Differential with Seal-In",
+        resource: "Project transformer protection DC elementary",
+        objectives: [
+          { id:"m2o1", text:"Trace the 87T trip circuit: relay output contact → auxiliary relay coil → auxiliary relay contact seals in → trip coil on high-side breaker → 52b interrupts. Identify why an auxiliary relay (86 lockout or 94 trip auxiliary) sits between the 87T contact and the trip coil.", activities:["trace","read"], resource:"Project drawing + IEEE C37.91 Section 4" },
+          { id:"m2o2", text:"Understand the seal-in function: why the 87T contact alone can't hold the trip coil energized long enough to trip a slow breaker. What is the 86 lockout relay and why does it require manual reset?", activities:["trace","talk"], resource:"Talk-first: explain to Claude" },
+          { id:"m2o3", text:"Trace how the same 87T operates trip coils on BOTH the high-side and low-side breakers — two separate trip circuits from one relay. Identify where they diverge on the drawing.", activities:["trace","draw"], resource:"Project drawing" },
+          { id:"m2o4", text:"Draw Circuit 2 from memory. Both trip circuits. Label every device. Verify against project drawing.", activities:["draw"], resource:"Blank paper + project drawing" },
+        ]
+      },
+      {
+        id:"m2s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Track B — Section 2.9 Lightning Protection",
+        resource: "IEEE 998 · NFPA 780 · your PE notes",
+        objectives: [
+          { id:"m2o5", text:"Research: Review rolling sphere method, shielding angle method, and mesh method. Review your PE notes on IEEE 998 protection levels and sphere radii. Note the difference between substation application and building application (NFPA 780).", activities:["research","read"], resource:"IEEE 998 Sections 4–6; NFPA 780 overview" },
+          { id:"m2o6", text:"Talk-first draft: Walk Claude through lightning protection design for a substation — how you'd determine the protection zone, place masts or shield wires, and verify coverage. Include the physics of why the rolling sphere works.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m2o7", text:"Review, correct, and reach 70%. Flag anything you'd need to verify against IEEE 998 before publishing.", activities:["write","review"], resource:"Draft corrections" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 3, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Circuit 3 + Section 2.8 Surge Arresters",
+    sub: "Track A: Breaker failure circuit · Track B: Surge protection",
+    psrc: "Read PSRC Report 101 (Protective Relaying and Power Quality) — abstract and Section 1 introduction only. First pass, 20 min.",
+    sections: [
+      {
+        id:"m3s1", track:"circuit", trackLabel:"Circuit Literacy", badge:"badge-circuit",
+        title: "Track A — Circuit 3: Breaker Failure Initiation",
+        resource: "Project breaker failure DC elementary",
+        objectives: [
+          { id:"m3o1", text:"Trace the breaker failure initiation circuit: relay trip output → BF initiation contact → 62BF timer starts. Understand the two conditions that must both be true for BF to complete: timer times out AND 50BF element still sees current (breaker failed to interrupt).", activities:["trace","read"], resource:"Project drawing + IEEE C37.91 breaker failure section" },
+          { id:"m3o2", text:"Trace the BF trip output: 62BF contact → trip all breakers in the zone (bus section breakers, remote line breakers). Understand why BF trips MORE breakers than the original relay trip — and why that is the correct response.", activities:["trace","talk"], resource:"Talk-first: explain the logic to Claude" },
+          { id:"m3o3", text:"Draw Circuit 3 from memory: initiation path, timer, current supervision, and BF trip output. Verify against project drawing.", activities:["draw"], resource:"Blank paper + project drawing" },
+        ]
+      },
+      {
+        id:"m3s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Track B — Section 2.8 Surge Arresters",
+        resource: "IEEE C62.11 · IEEE C62.41.2 · your PE notes",
+        objectives: [
+          { id:"m3o4", text:"Research: Review MCOV selection, TOV capability, arrester classification (distribution, intermediate, station), energy rating, and protective margins. Review your PE notes on cascade SPD coordination.", activities:["research","read"], resource:"IEEE C62.11 key sections; your PE notes" },
+          { id:"m3o5", text:"Talk-first draft: Explain arrester selection for a transmission substation — voltage class, MCOV determination for a solidly grounded system, TOV considerations for a fault condition, placement at transformer terminals.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m3o6", text:"Review, correct, reach 70%. Add the insulation coordination context — how arrester protective level relates to equipment BIL.", activities:["write","review"], resource:"IEEE C62.11; IEEE C62.22 application guide" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 4, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Circuit Review + Section 2.7 Insulation Coordination",
+    sub: "Track A: Consolidate three circuits · Track B: Insulation coordination",
+    psrc: "Read PSRC Report 026 (Generator Protection Tutorial) — Introduction and Section I only. First pass, 30 min. Note what's familiar and what's new.",
+    sections: [
+      {
+        id:"m4s1", track:"circuit", trackLabel:"Circuit Literacy", badge:"badge-circuit",
+        title: "Track A — Circuit Consolidation",
+        resource: "Your hand-drawn circuits from Months 1–3",
+        objectives: [
+          { id:"m4o1", text:"Draw all three circuits from memory without looking at project drawings or your previous sketches. Time yourself — target under 20 minutes for all three. This tests whether the knowledge is internalized.", activities:["draw"], resource:"Blank paper only" },
+          { id:"m4o2", text:"Compare your drawings against project drawings. For every error or omission, write one sentence explaining why the correct version is correct — not just what it is, but why.", activities:["review","talk"], resource:"Project drawings + talk-first gap analysis with Claude" },
+        ]
+      },
+      {
+        id:"m4s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Track B — Section 2.7 Insulation Coordination",
+        resource: "IEEE C62.82.1 · IEEE 1313.1 · your PE notes",
+        objectives: [
+          { id:"m4o3", text:"Research: Review the insulation coordination cascade — lightning impulse withstand (BIL), switching impulse withstand (BSL), arrester protective level, protective margin. Review how voltage class and grounding method determine the required BIL.", activities:["research","read"], resource:"IEEE 1313.1 Sections 4–6; IEEE C62.82.1" },
+          { id:"m4o4", text:"Talk-first draft: Walk through insulation coordination for a 138kV substation — starting from the system voltage, deriving the required BIL for transformers and switchgear, selecting arrester protective level, verifying margins.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m4o5", text:"Review, correct, reach 70%. This section connects directly to 2.8 Surge Arresters — make sure the two sections reference each other.", activities:["write","review"], resource:"Cross-reference with Section 2.8 draft" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 5, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Section 2.14 Instrument Transformers",
+    sub: "Track B: CTs and VTs — bridges into Division 3",
+    psrc: "Browse pes-psrc.org working group list. Identify 2–3 working groups whose scope matches your interest (line protection, transformer protection, equipment subcommittee). Note the WG chair names for future contact.",
+    sections: [
+      {
+        id:"m5s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 2.14 — Instrument Transformers (Part 1: CTs)",
+        resource: "IEEE C57.13 · IEEE C57.13.3 · your PE notes",
+        objectives: [
+          { id:"m5o1", text:"Research: CT accuracy classes (C, T, K), knee point voltage, saturation analysis, secondary burden calculation, multi-ratio taps. Review your PE notes on C57.13. Note how CT performance requirements differ between metering and protection applications.", activities:["research","read"], resource:"IEEE C57.13 Sections 4–6" },
+          { id:"m5o2", text:"Talk-first draft: Walk through CT specification for a transmission line terminal — how you select ratio, accuracy class, and burden for a distance relay application. Include the CT saturation concern and how C800 classification addresses it.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m5o3", text:"Review, correct, reach 70% on CT section. This section feeds directly into 3.10 (Instrument Transformer Connections) — note the cross-reference.", activities:["write","review"], resource:"Draft corrections" },
+        ]
+      },
+      {
+        id:"m5s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 2.14 — Instrument Transformers (Part 2: VTs)",
+        resource: "IEEE C57.13 · IEEE C93.1 (CVTs)",
+        objectives: [
+          { id:"m5o4", text:"Research: Wound VTs vs. CCVTs — construction differences, frequency response differences, transient response characteristics. When to use each. Fusing requirements.", activities:["research","read"], resource:"IEEE C57.13; IEEE C93.1 overview" },
+          { id:"m5o5", text:"Talk-first draft: Walk through VT/CCVT selection for a 230kV line terminal. Why a CCVT at transmission voltage? What are the limitations for distance relaying (transient response)?", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m5o6", text:"Combine CT and VT content into complete Section 2.14 draft. Review for completeness against the scope document.", activities:["write","review"], resource:"Section 2.14 scope from your design code" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 6, phase: 1, phaseLabel: "Phase 1 — Foundations",
+    title: "Section 2.12 Metal-Clad Switchgear",
+    sub: "Track B: Drawing-focused — leverage your project experience",
+    psrc: "PSRC Quarterly Check-in: Visit pes-psrc.org — review any new posted meeting materials or working group updates. 20 min browse. Note any topics that connect to your current writing.",
+    sections: [
+      {
+        id:"m6s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 2.12 — Metal-Clad Switchgear (Drawing Focus)",
+        resource: "ANSI/IEEE C37.20.2 · your project SLD and relay protection drawings",
+        objectives: [
+          { id:"m6o1", text:"Research: Review C37.20.2 for basic switchgear classification, ratings, and required tests. Focus on what a standards engineer needs to specify — voltage class, interrupting rating, bus bracing, arc flash labeling requirements, draw-out vs. fixed mounting.", activities:["research","read"], resource:"IEEE C37.20.2 overview sections" },
+          { id:"m6o2", text:"Talk-first draft (drawing content focus): Walk through what a complete switchgear drawing package contains — the SLD showing bus arrangement, the relay protection diagram showing CT cores and relay connections, the AC three-line, the DC elementary for each breaker position. Use your switchgear project experience as the source.", activities:["talk"], resource:"Conversation with Claude — draw from your project experience" },
+          { id:"m6o3", text:"Review, correct, reach 70%. This section is deliberately drawing-focused rather than equipment-specification-focused — that distinction should be clear in the section scope.", activities:["write","review"], resource:"Cross-reference Division 6 drawing standards (to be written)" },
+        ]
+      },
+      {
+        id:"m6s2", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Breaker Operation: O-C-O Sequence & Spring Charging",
+        resource: "Circuit Literacy Guide Part 6 · SEL application notes on breaker control (selinc.com/resources, search 'breaker control')",
+        objectives: [
+          { id:"m6f1", text:"Understand the O-C-O (Open-Close-Open) duty cycle: a breaker must be able to open, immediately close onto a fault, and open again without recharging. This is the rated duty cycle and defines why spring energy must be sufficient for two operations.", activities:["read","talk"], resource:"Circuit Literacy Guide Part 6 — O-C-O sequence diagram" },
+          { id:"m6f2", text:"Understand trip-free mechanism: if a close command and a trip command arrive simultaneously, trip wins — the breaker opens regardless of a held close signal. This is a mechanical interlock, not relay logic. Why does this matter for reclosing onto a fault?", activities:["read","talk"], resource:"Talk-first: explain to Claude why trip-free prevents catastrophic outcomes" },
+          { id:"m6f3", text:"Understand spring charging: after each close operation, the motor recharges the closing spring. If the motor fails or the spring is discharged, a reclose attempt results in no operation. What alarm tells the operator the spring is discharged? What is the typical recharge time (5–15 seconds)?", activities:["read","talk"], resource:"Circuit Literacy Guide Part 6 + SEL breaker monitoring app note" },
+          { id:"m6f4", text:"SEL resources for breaker monitoring and control: SEL-2411 Programmable Automation Controller app note, SEL application note on breaker health monitoring, SEL-651R reclosing relay. Browse selinc.com/resources — search 'breaker failure' and 'breaker control'. Read titles and abstracts only this month.", activities:["read"], resource:"selinc.com/resources — search 'breaker control', 'breaker failure'" },
+        ]
+      }
+    ]
+  },
+
+  // ── PHASE 2 ─────────────────────────────────────
+  {
+    month: 7, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.10 Instrument Transformer Connections + Fluency: Overcurrent Coordination",
+    sub: "Writing: CT/VT connections · Fluency: 50/51/51N scheme logic in context",
+    psrc: "Read PSRC Report 037 in full — you've read parts already. This time read it end to end. First pass, no deep study. Note sections to return to.",
+    sections: [
+      {
+        id:"m7s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.10 — Instrument Transformer Connections",
+        resource: "IEEE C57.13.3 · project CT/VT connection drawings",
+        objectives: [
+          { id:"m7o1", text:"Research: CT polarity marking conventions (H1/X1 relationship), standard CT connection configurations (wye, delta, zero-sequence), residual current connections, how connection type affects relay current inputs. Review how CT connections appear on AC three-line schematics.", activities:["research","read"], resource:"IEEE C57.13.3; your project AC schematics" },
+          { id:"m7o2", text:"Talk-first draft: Walk through CT connections for a transformer differential scheme — how you connect CTs on the wye side vs. delta side, why the CT connections compensate for the transformer's 30° phase shift, and how this appears on the AC three-line drawing.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m7o3", text:"Add VT connection content: standard VT secondary connections (open delta, wye-wye), broken delta for zero-sequence voltage detection. Review, correct, reach 70%.", activities:["write","review"], resource:"Project VT connection drawings" },
+        ]
+      },
+      {
+        id:"m7s2", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Overcurrent Coordination: 50/51/51N in Context",
+        resource: "SEL-351 Application Guide (selinc.com) · IEEE C37.112 · SEL overcurrent coordination app notes",
+        objectives: [
+          { id:"m7f1", text:"Device numbers in context: 50 = instantaneous overcurrent (no intentional delay — picks up and trips in 1–3 cycles). 51 = time-overcurrent (delay depends on current magnitude — inverse-time curve). 51N = neutral/ground overcurrent (same logic but monitors the residual current = 3I0). Talk through each to Claude until you can explain all three without looking.", activities:["read","talk"], resource:"Talk-first: explain 50 vs 51 vs 51N to Claude, get corrections" },
+          { id:"m7f2", text:"TCC curve as a picture: a time-current characteristic (TCC) curve shows how long a device takes to operate at each current level. The higher the current, the shorter the time. Draw a rough TCC curve from memory — y-axis is time (0.01s to 100s), x-axis is current in multiples of pickup. Mark the instantaneous (50) element as a vertical line at its pickup. Mark the inverse-time (51) curve above it.", activities:["draw","talk"], resource:"Talk-first: sketch on paper, explain the picture to Claude" },
+          { id:"m7f3", text:"Coordination time interval (CTI): upstream and downstream devices must have enough time separation that the downstream device clears its fault before the upstream device trips. Typical CTI = 0.2–0.4 seconds. Why 0.2s minimum? (Breaker clearing time + relay overshoot + margin.) Where does coordination break down? (At high fault currents where both devices are in their instantaneous regions.)", activities:["read","talk"], resource:"Conversation with Claude — draw the coordination stack" },
+          { id:"m7f4", text:"SEL resources for overcurrent protection: SEL-351 application guide (overcurrent/reclosing relay), SEL application note AN2001-01 on overcurrent coordination, SEL curve comparison tool. Browse selinc.com/resources — search 'overcurrent coordination'. Read the SEL-351 app guide introduction and Section 1 only.", activities:["read"], resource:"selinc.com/resources — SEL-351 app guide, search 'overcurrent'" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 8, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 6.2 Symbols + Fluency: Transformer Differential & Equipment",
+    sub: "Writing: device designations · Fluency: 87T scheme + thermal model + LTC + SCADA",
+    psrc: "Read IEEE C37.2 (Device Function Numbers) — the standard itself, not a summary. Scan all function numbers. This is vocabulary building, not deep study.",
+    sections: [
+      {
+        id:"m8s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 6.2 — Symbols, Device Designations, Nomenclature",
+        resource: "IEEE C37.2 · your company drawing standards (if any)",
+        objectives: [
+          { id:"m8o1", text:"Compile your company's standard device function numbers — the IEEE C37.2 numbers you actually use, plus any company-specific suffix conventions. Document at minimum: 21, 25, 27, 32, 40, 46, 47, 49, 50, 50BF, 51, 51N, 52, 59, 60, 62, 67, 79, 81, 86, 87B, 87L, 87T, 94. One line per device: number, name, brief description of what it detects.", activities:["research","write"], resource:"IEEE C37.2; your project relay lists" },
+          { id:"m8o2", text:"Document equipment designation convention: how you name circuit breakers, transformers, disconnect switches, buses, lines, feeders. The CB-230-1 naming logic. Make this a real standard, not just an example.", activities:["talk","write"], resource:"Conversation with Claude — your company conventions" },
+          { id:"m8o3", text:"Document electrical symbol standards for one-line diagrams and schematics — reference IEEE standard symbols where they exist. Note any company-specific symbols that differ from IEEE standards.", activities:["write","review"], resource:"IEEE standard symbol references; your project drawings" },
+        ]
+      },
+      {
+        id:"m8s2", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Transformer Differential Scheme (87T)",
+        resource: "SEL-387 Application Guide · SEL-487E Application Guide (selinc.com) · IEEE C37.91 Section 4",
+        objectives: [
+          { id:"m8f1", text:"Percentage differential concept: the 87T relay compares current flowing into the transformer (through high-side CTs) with current flowing out (through low-side CTs). Under normal conditions they're equal (adjusted for turns ratio). During an internal fault, more current flows in than out. The relay trips when the difference (differential current) exceeds a percentage of the through current (restraint current). Draw the concept: two CT inputs, a comparator, a percentage threshold.", activities:["read","talk","draw"], resource:"Talk-first: explain the comparator concept to Claude" },
+          { id:"m8f2", text:"Why harmonic restraint exists: when a transformer is energized, the magnetizing inrush current is heavily distorted — it contains large 2nd harmonic content. Without restraint, the relay would see this as a differential current and trip on energization. Harmonic restraint detects 2nd harmonic in the differential current and blocks tripping. The 5th harmonic restraint handles overexcitation. This is why 87T is slower to operate than a simple overcurrent relay.", activities:["read","talk"], resource:"Conversation with Claude — explain inrush to Claude, get gaps filled" },
+          { id:"m8f3", text:"What the slope characteristic means: the relay uses a percentage differential curve — the higher the through current (load or external fault), the higher the differential current threshold required to trip. This prevents CT error from causing a false trip during heavy load or external fault. A typical slope setting is 25–40%. You don't need to calculate settings — just understand why the slope rises with through current.", activities:["read","talk"], resource:"SEL-387 app guide Section 2 — look at the operating characteristic diagram only" },
+          { id:"m8f4", text:"SEL relay options for transformer protection: SEL-387 (2-winding transformer differential), SEL-487E (up to 6-winding, bus and transformer), SEL-T400L (traveling wave transformer protection). Browse selinc.com/resources — search 'transformer protection'. Read the SEL-387 and SEL-487E app guide introductions only.", activities:["read"], resource:"selinc.com/resources — search 'transformer differential'" },
+        ]
+      },
+      {
+        id:"m8s3", track:"fluency", trackLabel:"Equipment Fluency", badge:"badge-fluency",
+        title: "Fluency — Power Transformer as Equipment",
+        resource: "IEEE C57.12.00 · IEEE C57.91 (loading guide) · transformer nameplate from a project",
+        objectives: [
+          { id:"m8f5", text:"Cooling classes and thermal model: ONAN (oil natural, air natural — no fans or pumps, natural convection only), ONAF (add fans to the radiators), OFAF (forced oil circulation + fans). Each cooling class has a different kVA rating — the same transformer might be rated 40/53/67 MVA at ONAN/ONAF/OFAF. The hotspot temperature is the critical limit: 98°C hotspot = normal life consumption. Above that, insulation degrades exponentially. Talk through this to Claude — what limits loading?", activities:["read","talk"], resource:"IEEE C57.91 overview sections; talk-first to Claude" },
+          { id:"m8f6", text:"Load tap changer (LTC): a mechanical switch inside the transformer that changes the turns ratio under load to regulate secondary voltage. Steps are typically ±10% in 16–33 steps of 0.625% each. The LTC control scheme monitors the secondary bus voltage and taps up or down to maintain setpoint. Key points: LTC contacts arc on every operation (wear mechanism), LTC oil is separate from main tank oil (separate DGA monitoring), LTC operations counter triggers maintenance intervals.", activities:["read","talk"], resource:"Conversation with Claude — explain LTC operation and wear mechanism" },
+          { id:"m8f7", text:"SCADA monitoring points and alarm hierarchy: what a transformer typically reports. Critical alarms (trip): sudden pressure relay (63), winding temperature high-high (49), main tank gas relay (Buchholz). Warning alarms (no trip): winding temperature high, LTC operations counter, oil level low, fan failure, LTC motor failure, cooling pump failure. SCADA analog points: winding temperature, top oil temperature, LTC tap position, load current (from CTs), MVA loading. Talk through the hierarchy to Claude — which alarms wake someone up at 2am?", activities:["read","talk"], resource:"Conversation with Claude — build the alarm priority list" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 9, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Fluency: Capacitor Banks & Reactors",
+    sub: "Shunt capacitors · Series capacitors · Series reactors · Protection & control schemes",
+    psrc: "PSRC Quarterly Check-in: Review PSRC meeting minutes from most recent meeting posted at pes-psrc.org. Identify one working group whose recent activity interests you. Email the WG chair to introduce yourself.",
+    sections: [
+      {
+        id:"m9s1", track:"fluency", trackLabel:"Equipment Fluency", badge:"badge-fluency",
+        title: "Fluency — Shunt Capacitor Banks",
+        resource: "IEEE 18 (Shunt Power Capacitors) · IEEE 1036 (Capacitor Bank Application Guide) · SEL capacitor bank protection app notes",
+        objectives: [
+          { id:"m9f1", text:"Why shunt capacitor banks exist: they inject reactive power (VARs) into the system, raising voltage on weak buses and improving power factor. A capacitor bank is a local source of reactive power — it reduces the reactive current that would otherwise flow from the generator through the transmission system. Understand the difference between fixed and switched banks: fixed is always in service, switched is controlled by voltage or VAR demand.", activities:["read","talk"], resource:"Conversation with Claude — explain reactive power and voltage support" },
+          { id:"m9f2", text:"Switching transients: when a capacitor bank is energized, it draws a very large inrush current for a few milliseconds as the capacitor charges to system voltage. This transient can be 10–20× normal current and at a frequency of 300–2000 Hz. Pre-insertion resistors or inductors (current-limiting reactors) are installed in series to limit the inrush. Talk through why the transient occurs (V = C·dV/dt) and what a back-to-back switching transient is (two banks on the same bus — the charged bank discharges into the uncharged one).", activities:["read","talk"], resource:"Conversation with Claude — the physics of capacitor switching" },
+          { id:"m9f3", text:"Capacitor bank protection — unbalance detection: a capacitor bank is made of many individual capacitor cans in series-parallel groups. When one can fails (open-circuit), the voltage across the remaining cans in that series string increases — stressing the survivors. Unbalance protection (60N or voltage differential) detects this voltage redistribution before cascade failure. Understand H-bridge and neutral unbalance schemes conceptually — you don't need to know the settings.", activities:["read","talk"], resource:"SEL-487V app guide introduction; conversation with Claude" },
+          { id:"m9f4", text:"Automatic switching control: capacitor banks are switched on when bus voltage drops below setpoint or reactive power demand rises above setpoint. They are switched off when voltage rises above setpoint (to avoid overvoltage — a capacitor bank on a lightly loaded system can push voltage too high). Understand the deadband and time-delay settings conceptually — why is a time delay needed before switching? (To avoid rapid cycling — hunting.)", activities:["read","talk"], resource:"Conversation with Claude — explain the control logic" },
+        ]
+      },
+      {
+        id:"m9s2", track:"fluency", trackLabel:"Equipment Fluency", badge:"badge-fluency",
+        title: "Fluency — Series Capacitors & Series Reactors",
+        resource: "IEEE 824 (Series Capacitors) · IEEE Std 1313.2",
+        objectives: [
+          { id:"m9f5", text:"Series capacitors for line compensation: a series capacitor is inserted in series with a transmission line to cancel part of the line's inductive reactance. This increases the effective power transfer capacity of the line and improves stability margins. The degree of compensation is expressed as a percentage: 50% compensation means the capacitor's reactance is 50% of the line's inductive reactance. Key concern: subsynchronous resonance (SSR) — the capacitor creates a resonant circuit with the line inductance at a frequency below 60 Hz, which can interact with generator shaft torsional modes. This is why SSR analysis is required for series capacitor applications near large generators.", activities:["read","talk"], resource:"Conversation with Claude — explain series compensation and SSR conceptually" },
+          { id:"m9f6", text:"Series reactors for fault current limiting: a series reactor is inserted in series with a bus tie or feeder to limit the fault current that flows through that path. When a fault occurs, the reactor's impedance limits the rate of current rise and the steady-state fault current magnitude. Common applications: bus tie breaker reactors (limit fault current contribution between bus sections), transformer secondary reactors (limit fault current from a large transformer into a switchgear bus). Understand the trade-off: the reactor also reduces normal load current capacity and increases voltage drop under load.", activities:["read","talk"], resource:"Conversation with Claude — explain the fault current limiting concept" },
+          { id:"m9f7", text:"Series reactor protection: a series reactor is protected by differential protection (87) or overcurrent protection (51) depending on size and importance. Small reactors may have only overcurrent protection. Large reactors (bus tie reactors, large current-limiting reactors) warrant differential protection. The bypass switch is an important part of the design — if the reactor fails, the bypass allows normal operation while the reactor is repaired.", activities:["read","talk"], resource:"Conversation with Claude — talk through protection options" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 10, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.9 Trip and Close Circuits",
+    sub: "Circuit literacy pays off — you can now write this from first principles",
+    psrc: "Read PSRC TR 25 Sections 1–3 (IED-based relay schemes). resourcecenter.ieee-pes.org — free with PES membership. Note how IED-based schemes differ from electromechanical in terms of drawing representation.",
+    sections: [
+      {
+        id:"m10s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.9 — Trip and Close Circuits and Auxiliary Relays",
+        resource: "IEEE C37.91 · IEEE C37.97 · your circuit literacy drawings",
+        objectives: [
+          { id:"m10o1", text:"Talk-first draft Part 1 — Trip circuit fundamentals: Walk through the complete trip circuit from first principles — positive bus, fuse, relay contacts, trip coil, 52b auxiliary contact, negative bus. Explain every device. Explain the two-wire vs. three-wire trip circuit distinction. Draw from your Circuit 1 knowledge.", activities:["talk"], resource:"Conversation with Claude — draw from circuit literacy" },
+          { id:"m10o2", text:"Talk-first draft Part 2 — Auxiliary relays: Walk through the 86 lockout relay, the 94 trip auxiliary relay, and seal-in relay applications. When is each used? What is the difference between a lockout (manual reset) and a trip auxiliary (self-reset)?", activities:["talk"], resource:"Conversation with Claude → draft Part 2" },
+          { id:"m10o3", text:"Talk-first draft Part 3 — Close circuits: Walk through the breaker close circuit — close coil, anti-pump relay (Y relay), 52a contact in the close circuit. Why does the anti-pump relay exist? What happens without it if the close pushbutton is held down?", activities:["talk"], resource:"Conversation with Claude → draft Part 3" },
+          { id:"m10o4", text:"Combine all three parts. Review, correct, reach 70%. Cross-reference to Section 6.4 (DC elementary drawing standards).", activities:["write","review"], resource:"Complete section review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 11, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 6.4 AC Schematic & DC Elementary Standards",
+    sub: "Drawing standards for the two most important drawing types",
+    psrc: "Read PSRC TR 25 (Relay Scheme Design Using Microprocessor Relays) — Sections 1–3 only. First pass. Note how IED-based schemes differ from electromechanical in terms of drawing representation.",
+    sections: [
+      {
+        id:"m11s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 6.4 — AC Schematic and DC Elementary Standards",
+        resource: "Your switchgear project drawing package · IEEE standards for drawing practices",
+        objectives: [
+          { id:"m11o1", text:"Talk-first draft — AC schematic standards: Walk through how an AC three-line schematic is organized — one sheet per protected element, CT connections shown with polarity marks, relay inputs labeled, phase designation conventions (A-B-C, H1-H2-H3). Use your switchgear project drawings as the reference.", activities:["talk"], resource:"Conversation with Claude + your project AC schematics" },
+          { id:"m11o2", text:"Talk-first draft — DC elementary standards: Walk through DC elementary organization — sheet structure, DC bus at top, negative at bottom, circuit numbering convention, wire numbering convention, device labeling, cross-reference system between sheets. Use your project DC elementaries as the reference.", activities:["talk"], resource:"Conversation with Claude + your project DC elementaries" },
+          { id:"m11o3", text:"Document drawing conventions: contact representation (NO/NC), coil representation, terminal block symbols, wire number placement rules, from/to cross-reference format. Review, correct, reach 70%.", activities:["write","review"], resource:"Project drawings for verification" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 12, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.12 Control Panels & Marshalling",
+    sub: "Physical layout — where the drawings meet the hardware",
+    psrc: "Read one PAC World case study article — pick one involving a relay misoperation or commissioning finding. pacw.org archive. 30 min. Note what the root cause was.",
+    sections: [
+      {
+        id:"m12s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.12 — Control Panels, Marshalling, and Physical Layout",
+        resource: "Your project panel layout drawings · IEEE 1, NEMA ICS standards",
+        objectives: [
+          { id:"m12o1", text:"Talk-first draft — Panel types and organization: Walk through the standard panel types (relay panel, marshalling cabinet, SCADA panel, DC distribution panel) — what goes in each, how they're physically arranged in a relay room, why the arrangement matters for wiring run lengths and EMI.", activities:["talk"], resource:"Conversation with Claude + your project panel drawings" },
+          { id:"m12o2", text:"Talk-first draft — Physical layout standards: Walk through panel dimensions, device mounting heights (relay eye-level, test switches reachable, terminal blocks accessible), labeling requirements, door clearances, cable entry from below.", activities:["talk"], resource:"Conversation with Claude + your project drawings" },
+          { id:"m12o3", text:"Document marshalling cabinet function — why it exists as the interface between yard cables and panel wiring. Review, correct, reach 70%.", activities:["write","review"], resource:"Draft review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 13, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 6.5 Wiring & Connection Diagrams",
+    sub: "The drawing type that lives between the elementary and the field",
+    psrc: "PSRC Quarterly Check-in: Check pes-psrc.org for recent working group publications. Download and save any new technical reports relevant to protection topics you're writing. Read titles and abstracts only this month.",
+    sections: [
+      {
+        id:"m13s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 6.5 — Wiring and Connection Diagram Standards",
+        resource: "Your project wiring diagrams and interconnection drawings",
+        objectives: [
+          { id:"m13o1", text:"Talk-first draft — Panel wiring diagrams: Walk through what a panel wiring diagram shows that a DC elementary doesn't — physical terminal block layout, actual wire routing inside the panel, wire color codes, terminal strip numbering.", activities:["talk"], resource:"Conversation with Claude + project panel wiring diagrams" },
+          { id:"m13o2", text:"Talk-first draft — Interconnection diagrams: Walk through cable block diagrams and interconnection diagrams — how cables are identified at each end, how terminal assignments are shown, how this relates to the cable schedule.", activities:["talk"], resource:"Conversation with Claude + project interconnection drawings" },
+          { id:"m13o3", text:"Review, correct, reach 70%. Cross-reference to Section 6.8 (Cable and Wiring Schedules).", activities:["write","review"], resource:"Draft review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 14, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 6.3 Single Line Diagram Standards + Fluency: Distance Protection",
+    sub: "Writing: SLD standards · Fluency: 21 element, impedance plane, Zone 1/2/3",
+    psrc: "Read IEEE C37.2 one more time — this time look specifically at function number suffix conventions. Document any suffixes your company uses that aren't standard. This feeds Section 6.2 revisions.",
+    sections: [
+      {
+        id:"m14s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 6.3 — Single Line Diagram Standards",
+        resource: "Your project SLDs · your existing drawing from switchgear project",
+        objectives: [
+          { id:"m14o1", text:"Talk-first draft — Plant SLD requirements: Walk through what a complete plant SLD must show — all buses, all positions, all equipment with designations, voltage levels, ratings, CT and VT locations, protection zone boundaries, metering points.", activities:["talk"], resource:"Conversation with Claude + your project SLDs" },
+          { id:"m14o2", text:"Talk-first draft — Protection and metering SLD: Walk through the specialized one-line that shows CT core allocation, relay connections, and zone boundaries. What makes this different from the plant SLD? How is it used during commissioning and fault analysis?", activities:["talk"], resource:"Conversation with Claude + your project relay protection diagrams" },
+          { id:"m14o3", text:"Document SLD update requirements — when must the SLD be updated, who approves, how are as-built changes tracked. Review, correct, reach 70%.", activities:["write","review"], resource:"Draft review" },
+        ]
+      },
+      {
+        id:"m14fs1", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Distance Protection: 21 Element & the Impedance Plane",
+        resource: "SEL-311C Application Guide (selinc.com) · IEEE C37.113 overview · SEL distance protection app notes",
+        objectives: [
+          { id:"m14f1", text:"The impedance plane as a picture: a distance relay measures the impedance it sees looking into the line — V/I. Under normal load conditions, this impedance is large (high voltage, moderate current). During a fault close to the relay, impedance collapses toward zero. The relay plots this impedance as a point on an R-X diagram (resistance on horizontal axis, reactance on vertical). The relay trips when the measured impedance falls inside a defined region (the zone characteristic) on this diagram. Draw the R-X plane from memory: mark the origin, mark where a nearby fault plots vs. a far fault vs. load.", activities:["read","talk","draw"], resource:"Talk-first: draw the R-X plane on paper, explain to Claude" },
+          { id:"m14f2", text:"Zone 1/2/3 reach and coordination: Zone 1 covers ~80–85% of the line and trips instantaneously. Why not 100%? (CT and VT errors, line parameter uncertainty — setting at 100% risks overreaching into the next line section and tripping for an external fault.) Zone 2 overreaches to 120–150% of the line and has a time delay (typically 20–30 cycles) to coordinate with Zone 1 of the next relay. Zone 3 extends further and is used for backup protection. This time-stepped coordination is what pilot schemes eliminate.", activities:["read","talk"], resource:"Conversation with Claude — draw the zone reach diagram on a two-terminal line" },
+          { id:"m14f3", text:"Load encroachment problem: under heavy load, the system impedance can enter the distance relay's Zone 3 characteristic, causing a false trip. Modern relays use blinder characteristics or a lens-shaped Zone 3 to exclude the load region. Understand conceptually why load plots differently from a fault on the R-X diagram (load has angle ~25–35°, faults plot near the R=0 axis for close-in faults).", activities:["read","talk"], resource:"Conversation with Claude — explain load vs fault on the R-X diagram" },
+          { id:"m14f4", text:"SEL relay options for distance protection: SEL-311C (transmission line — distance + pilot), SEL-421 (line protection with advanced features), SEL-411L (current differential line protection — not distance). Browse selinc.com/resources — search 'distance protection' and 'transmission line protection'. Read the SEL-311C app guide introduction only.", activities:["read"], resource:"selinc.com/resources — search 'distance protection', 'transmission line'" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 15, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.8 Relay Selection + Fluency: Pilot Schemes & Reclosing",
+    sub: "Writing: relay specification · Fluency: POTT/DUTT/DCB + multi-shot reclose + synchrocheck",
+    psrc: "Read PSRC Report TR 25 Sections 4–6 (remainder). Focus on IED setting management and scheme logic. Note any topics that should feed into your Section 3.8.",
+    sections: [
+      {
+        id:"m15s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.8 — Relay Selection and Specification",
+        resource: "IEEE C37.90 series · your project relay specifications",
+        objectives: [
+          { id:"m15o1", text:"Research: Review what relay specifications cover — protection functions required, CT/VT inputs, output contacts, communications ports, power supply, environmental ratings, testing requirements, IEEE C37.90 qualification. Review how your company specifies relays on project drawings vs. in separate specs.", activities:["research","read"], resource:"IEEE C37.90; IEEE C37.90.1; your project relay specs" },
+          { id:"m15o2", text:"Talk-first draft — Selection criteria: Walk through how you select a relay for a given application — what functions are required, what communications are needed (IEC 61850, DNP3, GOOSE), single vs. dual redundant scheme, vendor considerations.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m15o3", text:"Talk-first draft — Specification content: What must a relay specification document contain beyond just a model number? Input requirements, output requirements, factory acceptance test requirements, setting documentation requirements. Review, correct, reach 70%.", activities:["talk","write","review"], resource:"Conversation with Claude + project specs" },
+        ]
+      },
+      {
+        id:"m15fs1", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Pilot Schemes: POTT, DUTT, DCB",
+        resource: "SEL-311C pilot scheme application guide (selinc.com) · IEEE C37.113 pilot scheme sections",
+        objectives: [
+          { id:"m15f1", text:"The problem pilot schemes solve: Zone 1 (at 85% reach) cannot cover the last 15% of the line near the remote terminal. A fault in that 15% takes Zone 2 time (20–30 cycles) to clear from the local end — too slow for transmission stability. Both ends of the line need to trip in Zone 1 time (1–3 cycles) for any fault on the line. A communications channel between the two terminals is the solution. That channel sends a permissive or blocking signal that allows or prevents Zone 1-speed tripping.", activities:["read","talk"], resource:"Talk-first: explain the Zone 1 underreach problem to Claude" },
+          { id:"m15f2", text:"POTT (Permissive Overreaching Transfer Trip): Zone 2 at both ends overreaches the entire line. When a relay detects an in-zone fault (Zone 2 picks up), it sends a permissive signal to the remote end. The remote end trips at Zone 1 speed only if it ALSO sees an in-zone condition AND receives the permissive signal. Both conditions required — this makes POTT secure (won't trip for external faults or channel noise alone). Signal must flow toward the fault, from the terminal that sees the fault away from it.", activities:["read","talk"], resource:"Conversation with Claude — draw the two-terminal POTT logic" },
+          { id:"m15f3", text:"DUTT (Direct Underreaching Transfer Trip): Zone 1 at the local end sends a direct trip to the remote end when it picks up — no requirement for the remote relay to also see the fault. Faster and simpler than POTT, but less secure — a spurious signal trips the remote end. Used where speed is critical and the channel is very reliable. DCB (Directional Comparison Blocking): the remote end sends a BLOCK signal if it sees the fault as external (reverse direction). If no block received, the relay trips. Fails safe in the non-trip direction if channel fails.", activities:["read","talk"], resource:"Conversation with Claude — compare all three schemes on a diagram" },
+          { id:"m15f4", text:"SEL resources for pilot schemes: SEL-311C (POTT/PUTT/DCB using SEL communications), SEL-421, SEL pilot protection application note. selinc.com/resources — search 'pilot protection' and 'permissive overreaching'. Read titles and abstracts only.", activities:["read"], resource:"selinc.com/resources — search 'pilot protection'" },
+        ]
+      },
+      {
+        id:"m15fs2", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Reclosing: Multi-Shot, Synchrocheck, Dead Line/Bus",
+        resource: "SEL-351 reclosing application guide · IEEE C37.104 overview · SEL-311C reclosing sections",
+        objectives: [
+          { id:"m15f5", text:"Multi-shot reclose sequence: a typical distribution scheme is 1 fast + 2 delayed + lockout. Fast shot (no intentional delay) clears transient faults (80% of overhead line faults are transient — temporary arc that self-extinguishes if de-energized briefly). If fault persists, two delayed shots give the arc more time to clear. After lockout, manual intervention required. The dead time is the window between the breaker opening and the reclose attempt — during dead time, arc ionization must dissipate. Why is dead time on the first shot shorter than subsequent shots? (More arc energy accumulated on each successive fault.)", activities:["read","talk"], resource:"Conversation with Claude — explain the shot sequence logic" },
+          { id:"m15f6", text:"Transmission reclosing restrictions: stability concerns limit how quickly transmission lines can reclose. High-speed reclosing (HSR, <30 cycles) is used on some transmission lines but requires synchrocheck verification. Delayed reclosing (1–30 seconds) is more common. Reclosing is INHIBITED after transformer faults (never reclose into a transformer differential trip), bus faults, and manual trips. Why no HSR for transformer faults? (The transformer may be physically damaged — reclosing would worsen damage and risk explosion.)", activities:["read","talk"], resource:"Conversation with Claude — explain why transformer trips inhibit reclosing" },
+          { id:"m15f7", text:"Synchrocheck (25) and dead line/dead bus: before reclosing a transmission breaker, the 25 relay verifies three conditions: (1) voltage magnitudes on both sides are within setpoint (e.g., ±10%), (2) phase angle difference is within setpoint (e.g., ±30°), (3) slip frequency (rate of angle change) is below setpoint. All three must be satisfied. Dead line check: if the line side is de-energized (dead), close without synchrocheck — you're just re-energizing an open line. Dead bus check: same logic for a dead bus. Anti-pumping: the Y relay prevents the close coil from being re-energized while the close coil circuit is still complete — prevents rapid reclosing if a close command is held on.", activities:["read","talk"], resource:"Conversation with Claude — explain synchrocheck logic and anti-pumping" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 16, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.3 Power Transformer Protection",
+    sub: "The most complex equipment protection — builds on circuits 1 & 2",
+    psrc: "PSRC Quarterly Check-in: Attend or review materials from most recent PSRC meeting. If a meeting is scheduled this quarter, plan to attend even as an observer. Review the D-subcommittee (line protection) and J-subcommittee (transformer protection) working group summaries.",
+    sections: [
+      {
+        id:"m16s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.3 — Power Transformer Protection",
+        resource: "IEEE C37.91 · PSRC Report 026 transformer sections",
+        objectives: [
+          { id:"m16o1", text:"Research: Read IEEE C37.91 Sections 4–7 in full. This is the primary research month for transformer protection. Note all protection functions, their device numbers, what each detects, and what its limitations are. Take notes — these notes become the draft.", activities:["research","read"], resource:"IEEE C37.91 Sections 4–7 (full read)" },
+          { id:"m16o2", text:"Talk-first draft — Differential protection (87T): Walk through transformer differential from first principles — percentage differential characteristic, slope settings, harmonic restraint, CT compensation for winding connections. Draw from your Circuit 2 knowledge.", activities:["talk"], resource:"Conversation with Claude — draw from circuit literacy" },
+          { id:"m16o3", text:"Talk-first draft — Overcurrent, thermal, sudden pressure, and buchholz protection: Walk through each remaining protection function — what it detects, where it's applied, what its time delay is and why.", activities:["talk"], resource:"Conversation with Claude → draft Part 2" },
+          { id:"m16o4", text:"Combine, review, correct, reach 70%. This is a critical section — spend extra time on accuracy.", activities:["write","review"], resource:"IEEE C37.91 verification check" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 17, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.1 Protection Philosophy",
+    sub: "The foundational section — everything else derives from this",
+    psrc: "Read PSRC Report on Protection Philosophy (search pes-psrc.org knowledge base for 'protection philosophy' or 'protection principles'). This section of your code and the PSRC materials are directly aligned.",
+    sections: [
+      {
+        id:"m17s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.1 — Protection Philosophy, Coordination, and Fault Studies",
+        resource: "IEEE C37.010 · NERC PRC standards · PSRC philosophy reports",
+        objectives: [
+          { id:"m17o1", text:"Talk-first draft — Dual redundant philosophy: Walk through why transmission class elements require two independent protection systems (Main 1 and Main 2), what independence means (separate CTs, separate VTs, separate DC supplies, separate relays, separate trip coils), and what happens if you only have one.", activities:["talk"], resource:"Conversation with Claude → draft Part 1" },
+          { id:"m17o2", text:"Talk-first draft — Protection zones and overlap: Walk through the concept of protection zones, why zones must overlap at circuit breakers, and what creates a gap in protection. Include the zone overlap diagram concept.", activities:["talk"], resource:"Conversation with Claude → draft Part 2" },
+          { id:"m17o3", text:"Talk-first draft — Fault studies requirements: What fault study inputs does a protection engineer need? What does a short circuit study provide? What is the minimum fault current requirement for relay sensitivity and why?", activities:["talk"], resource:"Conversation with Claude → draft Part 3" },
+          { id:"m17o4", text:"Combine, review, correct, reach 70%. This section should be written as the preamble to all of Division 3 — it should be referenced by every other protection section.", activities:["write","review"], resource:"Full section review + cross-references" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 18, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.6 Distribution Protection",
+    sub: "Overcurrent coordination — high exam relevance, high daily work relevance",
+    psrc: "Read IEEE C37.112 (Inverse-Time Characteristic Equations for Overcurrent Relays) — the full standard. Short document. Know the ANSI curve equations. This directly feeds Section 3.6.",
+    sections: [
+      {
+        id:"m18s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.6 — Distribution Protection",
+        resource: "IEEE C37.112 · IEEE 242 (Buff Book) · IEEE C37.230",
+        objectives: [
+          { id:"m18o1", text:"Talk-first draft — Overcurrent coordination principles: Walk through TCC curve coordination — how upstream and downstream devices are coordinated, what CTI (coordination time interval) means and why 0.2–0.4 seconds is typical, where coordination fails at high fault currents.", activities:["talk"], resource:"Conversation with Claude → draft Part 1" },
+          { id:"m18o2", text:"Talk-first draft — Feeder protection scheme: Walk through a complete distribution feeder protection scheme — instantaneous element (50), time-overcurrent element (51), ground overcurrent (51N), recloser, fuse coordination. What happens at each fault level.", activities:["talk"], resource:"Conversation with Claude → draft Part 2" },
+          { id:"m18o3", text:"Review, correct, reach 70%. Add reference to fault study requirements from Section 3.1.", activities:["write","review"], resource:"Cross-reference Section 3.1" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 19, phase: 2, phaseLabel: "Phase 2 — Secondary & Controls",
+    title: "Section 3.7 Automatic Reclosing & Synchrocheck",
+    sub: "The automation layer on top of protection",
+    psrc: "PSRC Quarterly Check-in: Review any new PSRC working group publications. Read PSRC working group D50 summary on C37.104 (Automatic Reclosing Guide) if available — directly relevant to this section.",
+    sections: [
+      {
+        id:"m19s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.7 — Automatic Reclosing and Synchrocheck",
+        resource: "IEEE C37.104 · your project reclosing schemes",
+        objectives: [
+          { id:"m19o1", text:"Research: Review C37.104 — reclosing sequences (high-speed, time-delayed, single-shot, multi-shot), dead time settings, reclosing inhibit conditions (transformer fault, bus fault, manual trip). Review synchrocheck relay (25) principles — voltage magnitude check, phase angle window, slip frequency.", activities:["research","read"], resource:"IEEE C37.104 key sections" },
+          { id:"m19o2", text:"Talk-first draft: Walk through a typical distribution reclosing scheme — 1 fast + 2 delayed + lockout. Then walk through why transmission line reclosing has more restrictions than distribution reclosing (stability concerns, no reclosing into a transformer fault).", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m19o3", text:"Review, correct, reach 70%.", activities:["write","review"], resource:"Draft review" },
+        ]
+      }
+    ]
+  },
+
+  // ── PHASE 3 ─────────────────────────────────────
+  {
+    month: 20, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Section 3.2 Transmission Line Protection",
+    sub: "The hardest protection section — requires PSRC depth",
+    psrc: "Read IEEE C37.113 Sections 1–7 (full read of zone reach and load encroachment). This is required reading before writing 3.2 — not optional. Budget 2 hours for the C37.113 read.",
+    sections: [
+      {
+        id:"m20s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.2 — Transmission Line Protection (Part 1)",
+        resource: "IEEE C37.113 · PSRC D-subcommittee reports",
+        objectives: [
+          { id:"m20o1", text:"Research: Read IEEE C37.113 Sections 1–7 in full. This is the foundational reference for this section. Take notes on zone reach calculation, load encroachment, directional elements, and pilot scheme selection. These notes are your draft outline.", activities:["research","read"], resource:"IEEE C37.113 Sections 1–7" },
+          { id:"m20o2", text:"Talk-first draft — Distance protection zones: Walk through Zone 1, 2, 3 reach calculation and time coordination from first principles. Explain why Zone 1 is set to 85% and not 100%. Explain what load encroachment is and how blinder or lens characteristics address it.", activities:["talk"], resource:"Conversation with Claude → draft Part 1" },
+          { id:"m20o3", text:"Talk-first draft — Pilot schemes: Walk through POTT, DUTT, and DCB schemes — what signal each requires, which direction the signal flows, and the key trade-off between speed and security for each.", activities:["talk"], resource:"Conversation with Claude → draft Part 2" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 21, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Section 3.2 Continued + Section 3.4 Bus Protection + Fluency: 87B & BF as a System",
+    sub: "Complete line protection · Write bus differential · Fluency: 87B scheme + BF zone tripping",
+    psrc: "PSRC Quarterly Check-in: Full quarterly review — check new standards publications, working group updates. By now you should have a working group contact. Follow up on that relationship.",
+    sections: [
+      {
+        id:"m21s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.2 — Transmission Line Protection (Complete)",
+        resource: "IEEE C37.113 Sections 8–12 · PSRC line protection reports",
+        objectives: [
+          { id:"m21o1", text:"Complete Section 3.2: Ground protection elements (67N, 21N), mutual coupling on parallel lines, current differential protection (87L) overview. Review, correct, reach 70% on complete section.", activities:["research","talk","write","review"], resource:"IEEE C37.113 remaining sections + PSRC reports" },
+        ]
+      },
+      {
+        id:"m21s2", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.4 — Bus Protection",
+        resource: "IEEE C37.97 · PSRC bus protection working group reports",
+        objectives: [
+          { id:"m21o2", text:"Research: Review bus differential protection principles — high-impedance vs. low-impedance bus differential, CT saturation concerns, check zone concept, voltage-restrained schemes. Read IEEE C37.97 key sections.", activities:["research","read"], resource:"IEEE C37.97 Sections 4–7" },
+          { id:"m21o3", text:"Talk-first draft: Walk through bus differential scheme design — how CTs from all sources are summed, what a through-fault looks like to the relay vs. an internal fault, why CT saturation is more problematic for bus differential than for other applications.", activities:["talk"], resource:"Conversation with Claude → draft" },
+          { id:"m21o4", text:"Review, correct, reach 70%.", activities:["write","review"], resource:"Draft review" },
+        ]
+      },
+      {
+        id:"m21fs1", track:"fluency", trackLabel:"Protection Fluency", badge:"badge-fluency",
+        title: "Fluency — Bus Differential Scheme (87B) + BF as a Complete System",
+        resource: "SEL-487B Application Guide (selinc.com) · IEEE C37.97 · SEL breaker failure app note",
+        objectives: [
+          { id:"m21f1", text:"87B vs 87T — the CT saturation difference: transformer differential (87T) uses CTs on two sides of one piece of equipment — the CT characteristics are similar and the current magnitudes are predictable. Bus differential (87B) sums CTs from many different sources (feeders, transformers, lines) — all with different burdens, saturation levels, and current magnitudes. A heavy external fault can cause one CT to saturate while others don't, creating a false differential current. This is why bus differential is more susceptible to false operation and why high-impedance schemes are used: the high impedance forces the saturated CT's false current through the relay, but the voltage developed is below the relay threshold for external faults.", activities:["read","talk"], resource:"Conversation with Claude — explain the saturation problem" },
+          { id:"m21f2", text:"Check zone concept: a bus protection scheme may include a check zone — a second differential zone that must also see an internal fault before the main zone can trip. This provides additional security against false trips from CT saturation or relay maloperation. The check zone typically covers a larger area than the main zone. Both zones must agree before tripping. Understand the security-vs-speed trade-off: the check zone slows the trip slightly but prevents false operations.", activities:["read","talk"], resource:"Conversation with Claude — explain check zone logic" },
+          { id:"m21f3", text:"BF as a complete system — connect Circuit 3 to the scheme level: in Circuit 3 you traced the initiation, timer, current supervision, and zone trip. Now understand the scheme context: BF is initiated by every protection relay that issues a trip — 87T, 51, 21, 87B — all send a BF initiation contact to the 62BF timer simultaneously with their trip output. The 62BF timer runs for the duration of every normal fault trip and resets when current stops. Only if current persists after timeout does 86BF operate. Talk through this full sequence to Claude.", activities:["talk"], resource:"Conversation with Claude — trace the complete BF sequence from fault to zone trip" },
+          { id:"m21f4", text:"SEL resources for bus protection: SEL-487B (high-impedance bus differential), SEL-487E (low-impedance bus and transformer), SEL breaker failure application notes. selinc.com/resources — search 'bus protection' and 'breaker failure'. Read the SEL-487B app guide introduction.", activities:["read"], resource:"selinc.com/resources — search 'bus differential', 'breaker failure'" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 22, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Section 3.5 Breaker Failure Protection",
+    sub: "Circuit 3 knowledge becomes a written standard",
+    psrc: "Read PSRC TR 31 (Directional Ground Overcurrent Relays) in full. This is directly relevant to Section 3.2 — use it to check and improve your transmission line protection section.",
+    sections: [
+      {
+        id:"m22s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.5 — Breaker Failure Protection",
+        resource: "IEEE C37.119 · your Circuit 3 drawings",
+        objectives: [
+          { id:"m22o1", text:"Talk-first draft: Walk through breaker failure protection from first principles — draw directly from your Circuit 3 knowledge. Initiation logic, current supervision (50BF), timer (62BF), retrip vs. BF trip, which breakers get tripped on BF completion and why.", activities:["talk"], resource:"Conversation with Claude — draw from circuit literacy" },
+          { id:"m22o2", text:"Research additions: Review IEEE C37.119 for BF initiation methods, current supervision thresholds, timer settings philosophy, and BF protection for single-pole trip applications.", activities:["research","read"], resource:"IEEE C37.119 key sections" },
+          { id:"m22o3", text:"Review, correct, reach 70%. Cross-reference to Section 3.9 (trip circuits) and Section 3.1 (protection philosophy — backup protection principles).", activities:["write","review"], resource:"Cross-reference review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 23, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Section 3.13 Alarms, Indications & Event Recording",
+    sub: "The operational layer — what the control room sees",
+    psrc: "PSRC Quarterly Check-in: Full review. Read one PSRC working group paper from the C-subcommittee (system protection) knowledge base. Focus on event recording or disturbance monitoring topics.",
+    sections: [
+      {
+        id:"m23s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "Section 3.13 — Alarms, Indications, and Event Recording",
+        resource: "IEEE C37.111 (COMTRADE) · NERC PRC-002",
+        objectives: [
+          { id:"m23o1", text:"Talk-first draft — Alarm and indication philosophy: Walk through how relay targets, alarm contacts, and SCADA points are organized — what the control room needs to see, what the protection engineer needs for post-fault analysis, and what the maintenance technician needs for testing.", activities:["talk"], resource:"Conversation with Claude → draft Part 1" },
+          { id:"m23o2", text:"Talk-first draft — Event recording and disturbance monitoring: Walk through digital fault recorder (DFR) vs. relay oscillography — what each captures, COMTRADE format, retention requirements, NERC PRC-002 compliance requirements for BES elements.", activities:["talk","research"], resource:"Conversation with Claude + NERC PRC-002 overview" },
+          { id:"m23o3", text:"Review, correct, reach 70%.", activities:["write","review"], resource:"Draft review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 24, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Template Set TS-2 — Power Transformer",
+    sub: "First template set — the capstone of transformer protection writing",
+    psrc: "Read one complete PAC World case study on transformer protection misoperation. Apply what you read to check your Section 3.3 draft for gaps.",
+    sections: [
+      {
+        id:"m24s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "TS-2 — Power Transformer Template Set",
+        resource: "Your Section 3.3 draft · project transformer drawing package",
+        objectives: [
+          { id:"m24o1", text:"Drawing TS-2-01 (Protection and Metering SLD): Draft the content description and content requirements for the transformer protection SLD — what equipment is shown, CT core allocation table format, protection zone boundaries, relay designations. Draw the template SLD concept on paper first.", activities:["draw","write"], resource:"Your Section 3.3 draft + project transformer SLD" },
+          { id:"m24o2", text:"Drawing TS-2-02 (AC Three-Line Schematic): Draft content requirements — CT connections for differential scheme (compensation for delta-wye), overcurrent relay CT connections, VT connections for thermal and voltage relay inputs.", activities:["draw","write"], resource:"Your Section 3.10 draft + project AC schematic" },
+          { id:"m24o3", text:"Drawing TS-2-03 (DC Elementary): Draft content requirements — 87T trip circuit with 86 lockout, 51 overcurrent trip circuit, 63 sudden pressure trip, 49 thermal alarm and trip, close circuit with anti-pump. Reference Section 3.9 draft throughout.", activities:["draw","write"], resource:"Your Section 3.9 draft + project DC elementary" },
+          { id:"m24o4", text:"Review complete TS-2 template set for internal consistency. Every drawing must reference the others correctly. Every device on the DC elementary must appear on the SLD.", activities:["review"], resource:"Full template set review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 25, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Template Set TS-1 — Transmission Line Terminal",
+    sub: "The most complex template set — line protection dual redundant scheme",
+    psrc: "PSRC Quarterly Check-in: Full review. By this point you should be an active PSRC working group participant. Identify one contribution you can make to your working group in the next 6 months — a review comment, a draft section, a survey response.",
+    sections: [
+      {
+        id:"m25s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "TS-1 — Transmission Line Terminal Template Set",
+        resource: "Your Section 3.2 draft · Section 3.5 draft · project line terminal drawings",
+        objectives: [
+          { id:"m25o1", text:"Drawing TS-1-01 (Protection and Metering SLD): Draft content requirements for a breaker-and-a-half line terminal SLD — both breakers, CT core allocation table (Main 1, Main 2, Bus Prot, Metering, BF cores), CCVT connections, protection zone boundaries for Main 1, Main 2, bus zone, BF zone.", activities:["draw","write"], resource:"Your Section 3.2 draft + project line terminal SLD" },
+          { id:"m25o2", text:"Drawing TS-1-02 (AC Three-Line): Draft CT connection requirements for dual redundant scheme — independent CT cores to Main 1 and Main 2 relays, bus protection CT connections, metering CT connections. Show CCVT secondary winding allocation.", activities:["draw","write"], resource:"Your Section 3.10 draft + project AC schematic" },
+          { id:"m25o3", text:"Drawing TS-1-03 (DC Elementary — Main 1): Draft trip circuit for Main 1 relay — relay contacts, 86-1 lockout, trip coil on breaker 1 and breaker 2 of the breaker-and-a-half string, BF initiation from Main 1 trip.", activities:["draw","write"], resource:"Your Sections 3.5 and 3.9 drafts" },
+          { id:"m25o4", text:"Drawing TS-1-04 (DC Elementary — Main 2 and BF): Draft Main 2 trip circuit (independent DC supply from Main 1) and breaker failure scheme. Review complete TS-1 set for consistency.", activities:["draw","write","review"], resource:"Full template set review" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 26, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Template Sets TS-3 & TS-4 + Drawing Standards Integration",
+    sub: "Switchgear templates — leverage your project experience",
+    psrc: "Read PSRC TR 60 (Sudden Pressure Protection of Transformers) in full. Apply findings to check and improve your Section 3.3 and TS-2 drafts.",
+    sections: [
+      {
+        id:"m26s1", track:"writing", trackLabel:"Writing", badge:"badge-writing",
+        title: "TS-3 & TS-4 — Switchgear Bus and Distribution Feeder Templates",
+        resource: "Your switchgear project drawing package · your Section 3.6 draft",
+        objectives: [
+          { id:"m26o1", text:"TS-3 Bus and Bus Tie: Draft content requirements for bus differential SLD, bus tie breaker AC schematic (CT connections to 87B relay), and bus tie DC elementary (87B trip circuit to all bus-connected breakers). Draw from your bus protection section and project experience.", activities:["draw","write"], resource:"Your Section 3.4 draft + project switchgear drawings" },
+          { id:"m26o2", text:"TS-4 Distribution Feeder: Draft content requirements for feeder protection SLD, feeder AC schematic (CT connections for 51/51N/50), and feeder DC elementary (overcurrent trip circuit, reclosing scheme). Draw from your Section 3.6 and 3.7 drafts.", activities:["draw","write"], resource:"Your Section 3.6 and 3.7 drafts + project feeder drawings" },
+          { id:"m26o3", text:"Drawing Standards Integration: Now that all template sets exist, write or refine Section 6.3 (SLD Standards), 6.4 (Schematic/Elementary Standards), and 6.5 (Wiring Diagrams) using the templates as the concrete examples. The templates make the drawing standards real.", activities:["write","review"], resource:"Templates + Division 6 drafts" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 27, phase: 3, phaseLabel: "Phase 3 — Deep Protection",
+    title: "Code Integration & Consolidation",
+    sub: "All sections reviewed, cross-referenced, and ready for use",
+    psrc: "PSRC Quarterly Check-in: Final quarterly review of the plan period. Reflect on your PSRC involvement — what working group contributions have you made? What's the next 12-month PSRC goal?",
+    sections: [
+      {
+        id:"m27s1", track:"review", trackLabel:"Review", badge:"badge-reading",
+        title: "Code Review and Cross-Reference Pass",
+        resource: "All written sections",
+        objectives: [
+          { id:"m27o1", text:"Read every written section in sequence. For each section, verify that cross-references to other sections are correct and bidirectional. Add [FUTURE SECTION] tags where you reference sections not yet written.", activities:["review"], resource:"All written section drafts" },
+          { id:"m27o2", text:"Identify the 5 most important gaps — sections not yet written that are most urgently needed for your day-to-day work. These become the next cycle of writing beyond Month 28.", activities:["review"], resource:"Code TOC vs. written sections" },
+          { id:"m27o3", text:"Write a one-page Introduction to the code — the document you'd hand someone who picks it up for the first time. What is it, how to use it, what it covers, what it doesn't cover yet, and how to request revisions. This is Section 1.1.", activities:["write"], resource:"Conversation with Claude → draft" },
+        ]
+      }
+    ]
+  },
+
+  {
+    month: 28, phase: 3, phaseLabel: "Phase 3 — Complete",
+    title: "Plan Complete — What's Next",
+    sub: "Reflect, plan the next cycle, celebrate",
+    psrc: "No specific PSRC reading obligation. Reflect on your PSRC involvement over the past 28 months. Are you an active working group contributor? If not, make that the primary goal of the next cycle.",
+    sections: [
+      {
+        id:"m28s1", track:"review", trackLabel:"Review", badge:"badge-reading",
+        title: "29-Month Retrospective",
+        resource: null,
+        objectives: [
+          { id:"m28o1", text:"Count what you've written: how many sections of the code are at 70%+ quality? How many template sets are complete? Has anyone at work asked you a question that you could answer by pointing them to your code?", activities:["review"], resource:"Your code documents" },
+          { id:"m28o2", text:"Identify who consults you: In the past 6 months, who has come to you with technical questions? What topics? Are those topics covered in your code? If not, add them to the next writing cycle.", activities:["review"], resource:"Your own experience" },
+          { id:"m28o3", text:"Plan the next 12 months: Identify the next 6–8 sections to write. Consider adding Division 1 (General Provisions) sections now that you have enough technical content to write the governance layer meaningfully.", activities:["review","write"], resource:"Conversation with Claude — next cycle planning" },
+        ]
+      }
+    ]
+  }
+
+];
+
+// ── PSRC monthly reading list (months 1-27 index) ──
+const PSRC_MONTHLY = [
+  null, // month 0 recovery
+  "Familiarize with PSRC Knowledge Base index at pes-psrc.org/knowledgebase — browse titles only. No reading obligation. Get a feel for what's there.",
+  "Read PSRC Report 037 Section 1 (intro to microprocessor relays). pes-psrc.org/kb/report/037.pdf — 15 min, first pass only.",
+  "Read PSRC Report 101 abstract and Section 1 (Protective Relaying and Power Quality). pes-psrc.org/kb/report/101.pdf",
+  "Read PSRC Report 026 Introduction and Section I (Generator Protection Tutorial). pes-psrc.org/kb/report/026.pdf — 30 min first pass.",
+  "Browse pes-psrc.org working group list. Identify 2–3 WGs matching your interests. Note WG chair names for future contact.",
+  "PSRC Quarterly — Visit pes-psrc.org for meeting materials or WG updates. Note any topics connecting to your current writing. 20 min.",
+  "Read PSRC Report 037 in full — end to end, first-pass read. Note sections to return to later.",
+  "Read IEEE C37.2 (Device Function Numbers) — scan all function numbers. Vocabulary building, not deep study.",
+  "PSRC Quarterly — Review PSRC meeting minutes. Identify one WG of interest. Email the WG chair to introduce yourself before the next meeting.",
+  "No specific PSRC reading this month — the capacitors and reactors content is the focus. If you have extra time, browse the PSRC H-subcommittee (grounding, surge protection) knowledge base for any capacitor bank or reactor protection reports.",
+  "Read PSRC TR 25 Sections 1–3 (IED-based relay schemes). resourcecenter.ieee-pes.org — free with PES membership.",
+  "Read one PAC World case study on relay misoperation. pacw.org archive — 30 min. Note what the root cause was.",
+  "PSRC Quarterly — Check for new WG publications. Download relevant technical reports. Read titles and abstracts only.",
+  "Read IEEE C37.2 again — focus specifically on suffix conventions. Document any suffixes your company uses.",
+  "Read PSRC TR 25 Sections 4–6 (IED setting management and scheme logic). Note topics for Section 3.8.",
+  "PSRC Quarterly — Attend or review materials from most recent PSRC meeting. Review D- and J-subcommittee summaries.",
+  "Read PSRC Report on protection philosophy — search pes-psrc.org/knowledgebase for 'protection philosophy'.",
+  "Read IEEE C37.112 (Inverse-Time Characteristic Equations) in full — short standard, directly feeds Section 3.6.",
+  "PSRC Quarterly — Review new standards publications and WG updates. Follow up with your WG contact.",
+  "Read IEEE C37.113 Sections 1–7 in full — required before writing Section 3.2. Budget 2 hours.",
+  "PSRC Quarterly — Full review. Check working group participation status and plan next contribution.",
+  "Read PSRC TR 31 (Directional Ground Overcurrent Relays) in full. Use to check and improve Section 3.2.",
+  "PSRC Quarterly — Full review. Read one C-subcommittee paper on event recording or disturbance monitoring.",
+  "Read one complete PAC World case study on transformer protection misoperation. Apply to Section 3.3 review.",
+  "PSRC Quarterly — Full review. Identify one concrete contribution to your working group for next 6 months.",
+  "Read PSRC TR 60 (Sudden Pressure Protection of Transformers) in full. Apply to Section 3.3 and TS-2 review.",
+  "PSRC Quarterly — Final quarterly review of plan period. Reflect on working group contributions and set next 12-month PSRC goal.",
+  "No specific PSRC reading. Reflect on your involvement over 29 months. Is working group contribution the next priority?"
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const STORAGE_KEY = "career_tracker_v1";
+let currentMonth = 0;
+let done = {};
+let peDate = "2026-06-09";
+let startDate = null; // Phase 1 start
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      done = p.done || {};
+      currentMonth = Math.min(p.month || 0, MONTHS.length - 1);
+      peDate = p.peDate || "2026-06-09";
+      startDate = p.startDate || null;
+    }
+    if (!startDate) startDate = calcDefaultStart(peDate);
+  } catch(e) { done = {}; currentMonth = 0; startDate = calcDefaultStart(peDate); }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ done, month: currentMonth, peDate, startDate })); } catch(e) {}
+}
+
+function calcDefaultStart(peDateStr) {
+  const d = new Date(peDateStr);
+  d.setDate(d.getDate() + 70); // +10 weeks
+  return d.toISOString().split("T")[0];
+}
+
+function toggle(id) {
+  done[id] = !done[id];
+  if (!done[id]) delete done[id];
+  saveState();
+  updateAll();
+  if (done[id] !== false) showToast("✓ Done");
+}
+
+// ═══════════════════════════════════════════════════
+// COUNTS
+// ═══════════════════════════════════════════════════
+function allObjectives() {
+  const all = [];
+  MONTHS.forEach(m => m.sections.forEach(s => s.objectives.forEach(o => all.push({...o, track: s.track}))));
+  return all;
+}
+function trackObjs(track) { return allObjectives().filter(o => o.track === track); }
+function countDone(objs) { return objs.filter(o => done[o.id]).length; }
+function monthObjs(mi) {
+  const all = [];
+  MONTHS[mi].sections.forEach(s => s.objectives.forEach(o => all.push(o)));
+  return all;
+}
+function monthDone(mi) { return monthObjs(mi).filter(o => done[o.id]).length; }
+
+// ── Phase groupings ──
+const PHASES = [
+  { label: "Phase 0 — Recovery", color: "var(--text3)", months: [0] },
+  { label: "Phase 1 — Foundations", color: "var(--circuit)", months: [1,2,3,4,5,6] },
+  { label: "Phase 2 — Secondary & Controls", color: "var(--primary)", months: [7,8,9,10,11,12,13,14,15,16,17,18,19] },
+  { label: "Phase 3 — Deep Protection & Templates", color: "var(--psrc)", months: [20,21,22,23,24,25,26,27,28] },
+];
+
+// ═══════════════════════════════════════════════════
+// DATES
+// ═══════════════════════════════════════════════════
+function getMonthDate(mi) {
+  if (!startDate) return "";
+  const d = new Date(startDate);
+  d.setMonth(d.getMonth() + mi);
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+function getCurrentPlanMonth() {
+  if (!startDate) return 0;
+  const now = new Date();
+  const start = new Date(startDate);
+  const diff = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  return Math.max(0, Math.min(MONTHS.length - 1, diff));
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function updateAll() {
+  renderGlobalProgress();
+  renderDots();
+  renderMonth();
+  renderStats();
+  updateHeaderSub();
+}
+
+function updateHeaderSub() {
+  const planMonth = getCurrentPlanMonth();
+  const monthDate = getMonthDate(planMonth);
+  document.getElementById("header-sub").textContent = `Current: Month ${planMonth + 1} of 29  ·  ${monthDate}`;
+}
+
+function renderGlobalProgress() {
+  const wObjs = [...trackObjs("writing"), ...trackObjs("review")];
+  const cObjs = trackObjs("circuit");
+  const fObjs = trackObjs("fluency");
+  const pObjs = trackObjs("psrc");
+  const wDone = countDone(wObjs), cDone = countDone(cObjs), fDone = countDone(fObjs), pDone = countDone(pObjs);
+
+  document.getElementById("gp-write-nums").innerHTML = `${wDone} <span>/ ${wObjs.length}</span>`;
+  document.getElementById("gp-circuit-nums").innerHTML = `${cDone} <span>/ ${cObjs.length}</span>`;
+  document.getElementById("gp-fluency-nums").innerHTML = `${fDone} <span>/ ${fObjs.length}</span>`;
+  document.getElementById("gp-psrc-nums").innerHTML = `${pDone} <span>/ ${pObjs.length}</span>`;
+  document.getElementById("gp-write-bar").style.width = wObjs.length ? `${Math.round(wDone/wObjs.length*100)}%` : "0%";
+  document.getElementById("gp-circuit-bar").style.width = cObjs.length ? `${Math.round(cDone/cObjs.length*100)}%` : "0%";
+  document.getElementById("gp-fluency-bar").style.width = fObjs.length ? `${Math.round(fDone/fObjs.length*100)}%` : "0%";
+  document.getElementById("gp-psrc-bar").style.width = pObjs.length ? `${Math.round(pDone/pObjs.length*100)}%` : "0%";
+}
+
+function renderDots() {
+  const el = document.getElementById("month-dots");
+  el.innerHTML = "";
+  const planMonth = getCurrentPlanMonth();
+  MONTHS.forEach((m, i) => {
+    const total = monthObjs(i).length;
+    const d = monthDone(i);
+    const dot = document.createElement("div");
+    dot.className = "month-dot";
+    if (m.phase === 0) dot.classList.add("recovery");
+    if (i === currentMonth) dot.classList.add("current");
+    else if (d === total && total > 0) dot.classList.add("done");
+    else if (d > 0) dot.classList.add("partial");
+    dot.title = `Month ${i+1}: ${m.title}`;
+    dot.onclick = () => { currentMonth = i; saveState(); updateAll(); };
+    el.appendChild(dot);
+  });
+}
+
+function renderMonth() {
+  const m = MONTHS[currentMonth];
+  const objs = monthObjs(currentMonth);
+  const d = countDone(objs);
+  const planMonth = getCurrentPlanMonth();
+
+  const phaseColors = { 0: "var(--text3)", 1: "var(--circuit)", 2: "var(--primary)", 3: "var(--psrc)" };
+  document.getElementById("m-phase-label").textContent = m.phaseLabel;
+  document.getElementById("m-phase-label").style.color = phaseColors[m.phase];
+  document.getElementById("m-title").textContent = m.title;
+  document.getElementById("m-sub").textContent = `Month ${currentMonth + 1} of 29  ·  ${getMonthDate(currentMonth)}`;
+
+  document.getElementById("btn-prev").disabled = currentMonth === 0;
+  document.getElementById("btn-next").disabled = currentMonth === MONTHS.length - 1;
+
+  document.getElementById("month-prog-fill").style.width = objs.length ? `${Math.round(d/objs.length*100)}%` : "0%";
+  document.getElementById("month-prog-label").textContent = `${d} / ${objs.length} done`;
+
+  // Next up
+  const nextObj = objs.find(o => !done[o.id]);
+  const nextBox = document.getElementById("next-up-box");
+  if (nextObj) {
+    document.getElementById("next-up-text").textContent = nextObj.text.split(".")[0] + ".";
+    document.getElementById("next-up-meta").textContent = nextObj.resource ? `→ ${nextObj.resource}` : "";
+    nextBox.style.display = "block";
+  } else if (objs.length > 0) {
+    document.getElementById("next-up-text").textContent = "All objectives complete for this month 🎉";
+    document.getElementById("next-up-meta").textContent = currentMonth < MONTHS.length - 1 ? "Advance to the next month →" : "Plan complete.";
+    nextBox.style.display = "block";
+  } else {
+    nextBox.style.display = "none";
+  }
+
+  // PSRC reminder
+  const psrcText = PSRC_MONTHLY[currentMonth];
+  const psrcBox = document.getElementById("psrc-reminder-box");
+  if (psrcText && m.phase > 0) {
+    document.getElementById("psrc-reminder-text").textContent = psrcText;
+    psrcBox.style.display = "block";
+  } else {
+    psrcBox.style.display = "none";
+  }
+
+  // Sections
+  const container = document.getElementById("sections-container");
+  container.innerHTML = "";
+  m.sections.forEach((sec, si) => {
+    const secDone = sec.objectives.filter(o => done[o.id]).length;
+    const card = document.createElement("div");
+    card.className = "section-card" + (si === 0 ? " open" : "");
+    const resourceHtml = sec.resource ? `<div class="resource-banner"><div class="resource-label">Primary Resource</div><div class="resource-name">${sec.resource}</div></div>` : "";
+    card.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <span class="track-badge ${sec.badge}">${sec.trackLabel}</span>
+        <span class="section-title">${sec.title}</span>
+        <span class="section-count">${secDone}/${sec.objectives.length}</span>
+        <span class="section-chevron">›</span>
+      </div>
+      <div class="section-body">
+        ${resourceHtml}
+        <div class="obj-list" id="objlist-${sec.id}"></div>
+      </div>
+    `;
+    container.appendChild(card);
+
+    const listEl = card.querySelector(`#objlist-${sec.id}`);
+    sec.objectives.forEach(obj => {
+      const isDone = !!done[obj.id];
+      const item = document.createElement("div");
+      item.className = "obj-item" + (isDone ? " done" : "");
+      item.onclick = () => toggle(obj.id);
+      const actBadges = (obj.activities || []).map(a => `<span class="activity-badge act-${a}">${a}</span>`).join("");
+      item.innerHTML = `
+        <div class="obj-check"><span class="obj-check-mark">✓</span></div>
+        <div class="obj-content">
+          <div class="obj-num">${obj.id}</div>
+          <div class="obj-text">${obj.text}</div>
+          <div class="activity-row">${actBadges}</div>
+          ${obj.resource ? `<div class="obj-resource">${obj.resource}</div>` : ""}
+        </div>
+      `;
+      listEl.appendChild(item);
+    });
+  });
+}
+
+function toggleSection(card) { card.classList.toggle("open"); }
+
+function renderStats() {
+  const all = allObjectives();
+  const totalDone = countDone(all);
+  const totalPct = Math.round(totalDone / all.length * 100);
+  let monthsDone = 0;
+  MONTHS.forEach((m, i) => {
+    const objs = monthObjs(i);
+    if (objs.length > 0 && monthDone(i) === objs.length) monthsDone++;
+  });
+
+  document.getElementById("s-total").textContent = totalDone;
+  document.getElementById("s-pct").textContent = totalPct + "%";
+  document.getElementById("s-months").textContent = monthsDone;
+  document.getElementById("s-current").textContent = `M${currentMonth + 1}`;
+
+  const bars = document.getElementById("phase-bars");
+  bars.innerHTML = "";
+  PHASES.forEach(ph => {
+    const objs = [];
+    ph.months.forEach(mi => monthObjs(mi).forEach(o => objs.push(o)));
+    const d = countDone(objs);
+    const pct = objs.length ? Math.round(d / objs.length * 100) : 0;
+    bars.innerHTML += `
+      <div class="phase-prog-row">
+        <div class="phase-prog-name">${ph.label}</div>
+        <div class="phase-prog-bar"><div class="phase-prog-fill" style="width:${pct}%;background:${ph.color}"></div></div>
+        <div class="phase-prog-pct">${pct}%</div>
+      </div>
+    `;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════
+function saveSettings() {
+  const newPeDate = document.getElementById("input-pe-date").value;
+  const manualStart = document.getElementById("input-start-date").value;
+  peDate = newPeDate || "2026-06-09";
+  startDate = manualStart || calcDefaultStart(peDate);
+  saveState();
+  updateAll();
+  renderDatePreview();
+  showToast("Settings saved");
+}
+
+function renderDatePreview() {
+  const lines = [];
+  lines.push(`PE Exam Date: ${peDate}`);
+  lines.push(`Phase 1 Start (Month 1): ${startDate}`);
+  lines.push(`Phase 2 Start (Month 7): ${getMonthDate(6)}`);
+  lines.push(`Phase 3 Start (Month 20): ${getMonthDate(19)}`);
+  lines.push(`Plan Complete (Month 29): ${getMonthDate(28)}`);
+  document.getElementById("date-preview").innerHTML = lines.join("<br>");
+}
+
+function initSettings() {
+  document.getElementById("input-pe-date").value = peDate;
+  document.getElementById("input-start-date").value = startDate || "";
+  renderDatePreview();
+}
+
+// ═══════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════
+function changeMonth(dir) {
+  currentMonth = Math.max(0, Math.min(MONTHS.length - 1, currentMonth + dir));
+  saveState();
+  updateAll();
+  window.scrollTo(0, 0);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(`view-${tab}`).classList.add("active");
+  document.getElementById(`tab-${tab}`).classList.add("active");
+  if (tab === "settings") initSettings();
+  window.scrollTo(0, 0);
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+function confirmReset() {
+  if (confirm("Reset all progress? Cannot be undone.")) {
+    done = {};
+    saveState();
+    updateAll();
+    showToast("Progress reset");
+  }
+}
+
+// ── Jump to current plan month on load ──
+function jumpToCurrentMonth() {
+  const planMonth = getCurrentPlanMonth();
+  if (planMonth > 0 && planMonth < MONTHS.length) currentMonth = planMonth;
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+loadState();
+jumpToCurrentMonth();
+updateAll();
+</script>
+</body>
+</html>
